@@ -120,7 +120,8 @@
             </router-link>
           </div>
 
-          <div class="mt-8 flex flex-col gap-4">
+          <div class="mt-8 flex flex-col gap-4" 
+          v-if="store.state.userrole === 'Admin'">
             <span class="text-gray-400 text-sm">User Management</span>
             <router-link
               :to="{ name: 'User Page' }"

@@ -15,6 +15,7 @@
         <el-form-item label="Role" prop="role">
           <el-select placeholder="User's Role" v-model="form.role">
             <el-option label="Admin" value="Admin" />
+            <el-option label="Supervisor" value="Supervisor" />
             <el-option label="User" value="User" />
             <el-option label="Staff" value="Staff" />
           </el-select>
