@@ -1,0 +1,37 @@
+@import "tailwindcss";
+@import 'primeicons/primeicons.css';
+
+html {
+  scroll-behavior: smooth;
+}
+
+@theme {
+  --color-primary: #212121;
+  --color-secondary: #09b2e0;
+  --color-green_text: #045349;
+  --color-primary-text: #172861;
+  --color-link-text: #6577c2;
+  --color-green: #008000;
+  --color-purple: #7c5dfa;
+  --color-orange: #ff8f00;
+  --font-primary: "Rubik", serif;
+}
+
+@layer {
+  .section_container {
+     @apply mx-auto px-24 py-4 flex flex-col;
+  }
+
+}
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari, and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge, and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
