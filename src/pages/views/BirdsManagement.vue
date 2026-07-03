@@ -105,6 +105,7 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
   onSnapshot,
   doc,
   deleteDoc,
@@ -133,6 +134,7 @@ onMounted(() => {
   const usersCollection = query(
     collection(db, "birds"),
     where("companyId", "==", store.state.companyID),
+    orderBy("createdAt", "desc"),
   );
   onSnapshot(usersCollection, (snapshot) => {
     tableData.value = snapshot.docs.map((doc) => ({
@@ -140,7 +142,6 @@ onMounted(() => {
       ...doc.data(),
     }));
     loadingInstance.close();
-    console.log("Data",tableData.value)
   });
 });
 

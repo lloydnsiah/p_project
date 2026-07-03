@@ -39,6 +39,8 @@ declare module 'vue' {
     LoginComponent: typeof import('./src/components/LoginComponent.vue')['default']
     Logout: typeof import('./src/components/Logout.vue')['default']
     RevenueExpenditureChart: typeof import('./src/components/charts/RevenueExpenditureChart.vue')['default']
+    RevenueView: typeof import('./src/components/RevenueView.vue')['default']
+    ReveueView: typeof import('./src/components/ReveueView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SpeedDial: typeof import('primevue/speeddial')['default']

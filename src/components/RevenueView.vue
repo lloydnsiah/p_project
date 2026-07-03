@@ -1,12 +1,12 @@
 <template>
   <main class="page flex flex-col">
     <div class="view-container">
-      <div>
+       <div>
         <div
           class="flex justify-between bg-primary py-2 px-4 rounded-sm items-center text-white"
         >
           <div class="flex flex-col gap-1">
-            <h1 class="text-lg font-bold">Expenses Details</h1>
+            <h1 class="text-lg font-bold">Revenue Details</h1>
           </div>
           <button
             @click="emit('close')"
@@ -26,27 +26,33 @@
               <span>{{ props.data.date }}</span>
             </div>
             <div class="flex flex-row gap-2">
-              <span class="font-bold">Batch Name:</span>
-              <span>{{ props.data.batchName }}</span>
+              <span class="font-bold">Customer Name:</span>
+              <span>{{ props.data.customerName }}</span>
             </div>
             <div class="flex flex-row gap-2">
-              <span class="font-bold">Company Name:</span>
-              <span>{{ props.data.companyName }}</span>
+              <span class="font-bold">Payment Method:</span>
+              <span class="capitalize">{{ props.data.paymentMethod }}</span>
+            </div>
+            <div class="flex flex-row gap-2 items-baseline">
+              <span class="font-bold">ID:</span>
+              <span class="text-sm text-gray-400 italic">{{ props.data.id }}</span>
             </div>
           </div>
           <div class="flex gap-2 items-center italic text-sm">
             <span>Status:</span>
             <span
               class="text-white bg-green-500 py-2 px-8 rounded font-bold capitalize"
-              >{{ props.data.paymentStatus }}</span
+              >{{ props.data.status }}</span
             >
           </div>
         </div>
         <div class="flex flex-col gap-2 mt-4 px-6 h-[calc(60vh-200px)] overflow-auto">
-          <span class="font-medium text-md italic">Expenses List</span>
-          <DataTable :value="props.data.expenses" tableStyle="min-height: 1rem">
+          <span class="font-medium text-md italic">Item List</span>
+          <DataTable :value="props.data.revenue" tableStyle="min-height: 1rem">
             <Column field="name" header="Name" />
             <Column field="price" header="Price" />
+            <Column field="qty" header="Quantity" />
+            <Column field="itemTotal" header="Item Total" />
           </DataTable>
           <div class="flex justify-end px-8 py-2 gap-2 items-baseline">
             <span class="font-medium text-md italic">Total: </span>

@@ -135,7 +135,6 @@ onMounted(() => {
       ...doc.data(),
     }));
     loadingInstance.close();
-    console.log("Data", tableData.value);
   });
 });
 

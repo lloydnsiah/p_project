@@ -41,16 +41,17 @@
             header="Payment Method"
             style="width: 20%"
           ></Column>
-          <Column
-            field="status"
-            header="Status"
-            style="width: 10%"
-          ></Column>
+          <Column header="Status" style="width: 10%">
+            <template #body="slotProps">
+              <Tag :value="slotProps.data.status" class="px-5! py-1! capitalize" severity="secondary" />
+            </template>
+          </Column>
           
           <Column header="Actions">
              <template #body="slotProps">
               <div class="flex flex-row gap-4">
                 <Button
+                @click="viewData(slotProps.data)"
                   icon="pi pi-clipboard"
                   severity="success"
                   variant="text"
@@ -88,6 +89,7 @@
   </div>
   <AddNewRevenue v-if="modal_add" @close="modal_add = false" />
   <UpdateRevenue v-if="modal_update" @close="modal_update = false" :data="selectedData" />
+  <RevenueView v-if="modal_view" @close="modal_view = false" :data="selectedData" />
   <DeleteDialog v-if="modal_delete" @close="modal_delete = false" @delete="deleleData()"/>
 </template>
 
@@ -101,6 +103,7 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
   onSnapshot,
   doc,
   deleteDoc,
@@ -110,10 +113,12 @@ import { useStore } from "vuex";
 import DeleteDialog from "../../components/DeleteDialog.vue";
 import AddNewRevenue from "../../components/AddNewRevenue.vue";
 import UpdateRevenue from "../../components/UpdateRevenue.vue";
+import RevenueView from "../../components/RevenueView.vue";
 
 const modal_add = ref(false);
 const modal_delete = ref(false);
 const modal_update = ref(false);
+const modal_view = ref(false);
 const tableData = ref([]);
 const data = ref([]);
 const route = useRoute();
@@ -130,6 +135,7 @@ onMounted(() => {
   const usersCollection = query(
     collection(db, "revenues"),
     where("companyId", "==", store.state.companyID),
+    orderBy("createdAt", "desc"),
   );
   onSnapshot(usersCollection, (snapshot) => {
     tableData.value = snapshot.docs.map((doc) => ({
@@ -143,6 +149,10 @@ onMounted(() => {
 const updateData = (data) => {
   selectedData.value = data;
   modal_update.value = true;
+};
+const viewData = (data) => {
+  selectedData.value = data;
+  modal_view.value = true;
 };
 
 const confirmDelete = (data) => {
