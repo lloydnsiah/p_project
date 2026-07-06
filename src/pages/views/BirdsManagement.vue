@@ -47,7 +47,7 @@
           >
           <template #body="slotProps">
             <div>
-              <span><b> {{ slotProps.data.causeofDeath }}</b>: {{ slotProps.data.comment }} </span>
+              <span class="capitalize"><b v-if="slotProps.data.category === 'Dead'">{{ slotProps.data.causeofDeath }} :</b> {{ slotProps.data.comment }} </span>
             </div>
           </template>
 
