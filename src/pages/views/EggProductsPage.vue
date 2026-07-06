@@ -30,13 +30,14 @@
           <Column
             field="batchName"
             header="Batch Name"
-            style="width: 20%"
+            style="width: 15%"
           ></Column>
           <Column field="eggsCollected" header="Eggs Collected" style="width: 15%"></Column>
-          <Column field="eggsBroken" header="Broken Eggs" style="width: 15%"></Column>
-          <Column field="eggsDamaged" header="Damaged Eggs" style="width: 15%"></Column>
-          <Column field="totalEggs" header="Total Eggs" style="width: 15%"></Column>
+          <Column field="eggsBroken" header="Broken Eggs" style="width: 10%"></Column>
+          <Column field="eggsDamaged" header="Damaged Eggs" style="width: 10%"></Column>
+          <Column field="totalEggs" header="Total Eggs" style="width: 10%"></Column>
           <Column field="comment" header="Comment" style="width: 20%"></Column>
+          <Column field="date" header="Created At" style="width: 20%"></Column>
           <Column header="Actions">
             <template #body="slotProps">
               <div class="flex flex-row gap-4">
