@@ -89,10 +89,12 @@ const loadUser = (email) => {
       } else {
         ElMessage.error("No user document found for this email.");
         currentUserData.value = null;
+        logout();
       }
     },
     (error) => {
       console.error("Error loading user:", error);
+      logout();
     },
   );
 };

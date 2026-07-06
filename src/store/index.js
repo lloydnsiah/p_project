@@ -8,12 +8,14 @@ const store = createStore({
     companyID: '',
     username: "",
     userrole: "",
+    companyName: "",
   },
   mutations: {  
     SET_USERDATA(state, user) {
       state.username = user.name
       state.userrole = user.role
       state.companyID = user.companyId
+      state.companyName = user.companyName
     },
   },
   actions: {},

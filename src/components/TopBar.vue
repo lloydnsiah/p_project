@@ -13,6 +13,8 @@
         height="24"
         style="color: #717171"
       />
+
+      <span class="text-gray-300 italic text-sm">{{ store.state.companyName }}</span>
     </div>
     <div class="flex space-x-5 items-center">
       <!-- <button
