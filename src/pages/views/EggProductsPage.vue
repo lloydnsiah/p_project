@@ -108,7 +108,7 @@ const store = useStore();
 onMounted(() => {
   const loadingInstance = ElLoading.service({
     lock: true,
-    text: "Loading Employees Data...",
+    text: "Loading Data...",
   });
 
   const usersCollection = query(
