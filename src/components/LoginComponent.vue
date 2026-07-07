@@ -5,7 +5,7 @@
         <h1 class="text-4xl text-white">Login</h1>
         <button
           @click="handleClick"
-          class="px-6 py-1.5 rounded-2xl text-lg bg-none border-1 border-[#2d79f3] text-[#2d79f3] hover:bg-[#2d79f3] hover:text-white hover:translate-x-1 duration-300 transition-all"
+          class="px-6 py-1.5 rounded-2xl text-lg bg-none border border-[#2d79f3] text-[#2d79f3] hover:bg-[#2d79f3] hover:text-white hover:translate-x-1 duration-300 transition-all"
         >
           Close
         </button>

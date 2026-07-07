@@ -9,6 +9,12 @@
             placeholder="Add a name for the batch"
           />
         </el-form-item>
+        <el-form-item label="Type" prop="type">
+          <el-select placeholder="Select the type of Egg" v-model="form.type">
+            <el-option label="White" value="White" />
+            <el-option label="Brown" value="Brown" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="Eggs Collected" prop="eggsCollected">
           <el-input-number
             v-model="form.eggsCollected"
@@ -85,6 +91,7 @@ const totalEggs = computed(() => {
 const form = reactive({
   companyId: store.state.companyID,
   batchName: "",
+  type: "",
   eggsCollected: 0,
   eggsBroken: 0,
   eggsDamaged: 0,
@@ -100,6 +107,9 @@ const form = reactive({
 const rules = {
   batchName: [
     { required: true, message: "Batch Name is required", trigger: "blur" },
+  ],
+  type: [
+    { required: true, message: "Type is required", trigger: "blur" },
   ],
   number: [
     { required: false },

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-[#212121] h-screen flex items-center justify-center relative">
+  <div class="bg-primary h-screen flex items-center justify-center relative">
     <div class="loader-wrapper">
       <span class="loader-letter">G</span>
       <span class="loader-letter">e</span>

@@ -27,17 +27,19 @@
           :rowsPerPageOptions="[5, 10]"
           tableStyle="min-width: 50rem"
         >
+        <Column field="date" header="Created At" style="width: 10%"></Column>
           <Column
             field="batchName"
             header="Batch Name"
             style="width: 15%"
           ></Column>
-          <Column field="eggsCollected" header="Eggs Collected" style="width: 15%"></Column>
-          <Column field="eggsBroken" header="Broken Eggs" style="width: 10%"></Column>
-          <Column field="eggsDamaged" header="Damaged Eggs" style="width: 10%"></Column>
+          <Column field="type" header="Type of Egg" style="width: 10%" class="font-bold capitalize"></Column>
+          <Column field="eggsCollected" header="Eggs Collected" style="width: 15%" class="text-green-500"></Column>
+          <Column field="eggsBroken" header="Broken Eggs" style="width: 10% " class="text-red-500"></Column>
+          <Column field="eggsDamaged" header="Damaged Eggs" style="width: 10%" class="text-blue-500"></Column>
           <Column field="totalEggs" header="Total Eggs" style="width: 10%"></Column>
           <Column field="comment" header="Comment" style="width: 20%"></Column>
-          <Column field="date" header="Created At" style="width: 20%"></Column>
+          
           <Column header="Actions">
             <template #body="slotProps">
               <div class="flex flex-row gap-4">
