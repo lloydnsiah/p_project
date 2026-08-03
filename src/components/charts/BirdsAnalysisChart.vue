@@ -1,7 +1,16 @@
 <template>
   <div class="flex flex-col gap-4">
+    <div class="flex items-center justify-between">
     <span class="text-2xl font-semibold my-2 italic">Birds Analysis & Charts</span>
-    
+    <el-select v-model="selectedYear" style="width: 150px">
+        <el-option
+          v-for="year in availableYears"
+          :key="year"
+          :label="year"
+          :value="year"
+        />
+      </el-select>
+    </div>
     <div class="mt-3 w-full grid sm:grid-cols-1 xl:grid-cols-2 gap-6">
       <div class="w-full card bg-white rounded-2xl shadow p-6">
         <span class="block mb-4 text-gray-700 font-medium text-lg">
@@ -127,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from "vue";
+import { ref, onMounted, computed, reactive, watch } from "vue";
 import { useStore } from "vuex";
 import Chart from "primevue/chart";
 import { Warning } from "@element-plus/icons-vue";
@@ -139,6 +148,40 @@ const store = useStore();
 const currentMonth = new Date().getMonth();
 
 const birdsData = ref([]);
+
+const selectedYear = ref(new Date().getFullYear());
+const availableYears = computed(() => {
+  const years = new Set();
+  birdsData.value.forEach((item) => {
+    if (item.createdAt) {
+      years.add(item.createdAt.toDate().getFullYear());
+    }
+  });
+
+  return [...years].sort((a, b) => b - a);
+});
+
+watch(selectedYear, () => {
+  updateChart();
+});
+
+watch(availableYears, (years) => {
+  if (!years.length) return;
+
+  if (!years.includes(selectedYear.value)) {
+    selectedYear.value = years[0];
+  }
+});
+
+const filteredBirds = computed(() => {
+  return birdsData.value.filter((item) => {
+    if (!item.createdAt) return false;
+    return (
+      item.createdAt.toDate().getFullYear() === selectedYear.value
+    );
+  });
+});
+
 const typePie = ref(null);
 const barChart = ref(null);
 
@@ -185,6 +228,7 @@ const totalBirds = computed(() => totalNewStock.value - totalDead.value - totalS
 
 const currentBirdSummary = computed(() => {
   const month = monthlyBirdData[currentMonth];
+
   return {
     newStock: month.newStock,
     dead: month.dead,
@@ -245,22 +289,42 @@ function buildCharts() {
 function calculateBirdData() {
   resetBirdData();
 
-  birdsData.value.forEach((item) => {
+  filteredBirds.value.forEach((item) => {
     if (!item.createdAt) return;
 
     const date = typeof item.createdAt.toDate === "function" ? item.createdAt.toDate() : new Date(item.createdAt);
     const month = date.getMonth();
     const qty = Number(item.numberofbirds) || 0;
 
-    // Map categories
-    if (item.category === "New Stock") monthlyBirdData[month].newStock += qty;
-    if (item.category === "Dead") monthlyBirdData[month].dead += qty;
-    if (item.category === "Sold") monthlyBirdData[month].sold += qty;
+    // Categories
+    switch (item.category) {
+      case "New Stock":
+        monthlyBirdData[month].newStock += qty;
+        break;
 
-    // Map breeds
-    if (item.type === "Broilers") monthlyBirdData[month].broilers += qty;
-    if (item.type === "Layers") monthlyBirdData[month].layers += qty;
-    if (item.type === "Cockerels") monthlyBirdData[month].cockerels += qty;
+      case "Dead":
+        monthlyBirdData[month].dead += qty;
+        break;
+
+      case "Sold":
+        monthlyBirdData[month].sold += qty;
+        break;
+    }
+
+    // Bird Types
+    switch (item.type) {
+      case "Broilers":
+        monthlyBirdData[month].broilers += qty;
+        break;
+
+      case "Layers":
+        monthlyBirdData[month].layers += qty;
+        break;
+
+      case "Cockerels":
+        monthlyBirdData[month].cockerels += qty;
+        break;
+    }
   });
 
   buildCharts();

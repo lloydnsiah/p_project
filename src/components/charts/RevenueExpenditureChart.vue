@@ -1,8 +1,21 @@
 <template>
   <div class="flex flex-col gap-4">
-    <span class="text-2xl font-semibold my-2 italic"
-      >Revenue and Expenditure Analysis & Charts</span
-    >
+    <div class="flex items-center justify-between">
+      <span class="text-2xl font-semibold my-2 italic"
+        >Revenue and Expenditure Analysis & Charts</span
+      >
+      <el-select
+        v-model="selectedYear"
+        style="width: 150px"
+      >
+        <el-option
+          v-for="year in availableYears"
+          :key="year"
+          :label="year"
+          :value="year"
+        />
+      </el-select>
+    </div>
     <div>
       <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
         <div
@@ -96,6 +109,7 @@ import {
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { ElLoading } from "element-plus";
 import { db } from "../../firebase";
+
 const months = [
   "Jan",
   "Feb",
@@ -117,6 +131,18 @@ const previousMonth = currentMonthIndex === 0 ? 11 : currentMonthIndex - 1;
 const revenueData = ref([]);
 const expenseData = ref([]);
 
+const selectedYear = ref(new Date().getFullYear());
+const availableYears = computed(() => {
+  const years = new Set();
+   [...revenueData.value, ...expenseData.value].forEach((item) => {
+    if (item.createdAt) {
+      years.add(item.createdAt.toDate().getFullYear());
+    }
+  });
+
+  return [...years].sort((a, b) => b - a);
+});
+
 const chartData = ref();
 const chartOptions = ref();
 
@@ -133,9 +159,25 @@ const chartColors = {
   expense: "#EF5350",
 };
 
-watch(monthlyData, () => {
-  buildTable();
-}, { deep: true });
+watch(availableYears, (years) => {
+  if (!years.length) return;
+
+  if (!years.includes(selectedYear.value)) {
+    selectedYear.value = years[0];
+  }
+});
+
+watch(
+  monthlyData,
+  () => {
+    buildTable();
+  },
+  { deep: true },
+);
+
+watch(selectedYear, () => {
+  updateChart();
+});
 
 const currentMonthSummary = computed(() => {
   return monthlyData[currentMonthIndex];
@@ -200,27 +242,27 @@ function updateChart() {
 
   // Revenue
   revenueData.value.forEach((item) => {
-    const month = item.createdAt?.toDate().getMonth();
-    if (month === undefined) return;
-
+    if (!item.createdAt) return;
+    const date = item.createdAt.toDate();
+    if (date.getFullYear() !== selectedYear.value) return;
+    const month = date.getMonth();
     const total = item.revenue.reduce(
       (sum, row) => sum + (Number(row.itemTotal) || 0),
       0,
     );
-
     monthlyData[month].revenue += total;
   });
 
   // Expenses
   expenseData.value.forEach((item) => {
-    const month = item.createdAt?.toDate().getMonth();
-    if (month === undefined) return;
-
+    if (!item.createdAt) return;
+    const date = item.createdAt.toDate();
+    if (date.getFullYear() !== selectedYear.value) return;
+    const month = date.getMonth();
     const total = item.expenses.reduce(
       (sum, row) => sum + (Number(row.price) || 0),
       0,
     );
-
     monthlyData[month].expenses += total;
   });
 
@@ -379,21 +421,3 @@ onMounted(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 </style>
-
-<!-- const colors = {
-    revenue: "#10B981",
-    expenses: "#EF4444",
-    eggs: "#F59E0B",
-    birds: "#3B82F6",
-    mortality: "#8B5CF6"
-}
-
-or
-
-backgroundColor: [
-    "#4F46E5",
-    "#06B6D4",
-    "#10B981",
-    "#F59E0B",
-    "#EF4444"
-] -->

@@ -1,10 +1,21 @@
 <template>
   <div class="flex flex-col gap-4">
-    <span class="text-2xl font-semibold my-2 italic">Egg Analysis & Charts</span>
+    <div class="flex items-center justify-between">
+      <span class="text-2xl font-semibold my-2 italic"
+        >Egg Analysis & Charts</span
+      >
+      <el-select v-model="selectedYear" style="width: 150px">
+        <el-option
+          v-for="year in availableYears"
+          :key="year"
+          :label="year"
+          :value="year"
+        />
+      </el-select>
+    </div>
     <div class="mt-3 w-full grid sm:grid-cols-1 xl:grid-cols-2 gap-6">
       <div class="w-full card">
-        <span
-        class="block mb-4 text-gray-700 font-medium"
+        <span class="block mb-4 text-gray-700 font-medium"
           >Egg Analysis Monthly: <b>{{ months[currentMonthIndex] }}</b></span
         >
         <el-row :gutter="16">
@@ -25,7 +36,8 @@
               <el-statistic :value="currentMonthSummary.broken_eggs">
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
-                    Broken Eggs in: <b class="ml-2 text-md">{{ months[currentMonthIndex] }}</b>
+                    Broken Eggs in:
+                    <b class="ml-2 text-md">{{ months[currentMonthIndex] }}</b>
                   </div>
                 </template>
               </el-statistic>
@@ -33,10 +45,14 @@
           </el-col>
           <el-col :xs="24" :sm="12" :md="12" class="mb-4">
             <div class="statistic-card p-4 border border-gray-100 rounded-xl">
-              <el-statistic :value="currentMonthSummary.damaged_eggs" title="New transactions today">
+              <el-statistic
+                :value="currentMonthSummary.damaged_eggs"
+                title="New transactions today"
+              >
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
-                    Damaged Eggs in <b class="ml-2 text-md">{{ months[currentMonthIndex] }}</b>
+                    Damaged Eggs in
+                    <b class="ml-2 text-md">{{ months[currentMonthIndex] }}</b>
                   </div>
                 </template>
               </el-statistic>
@@ -44,10 +60,14 @@
           </el-col>
           <el-col :xs="24" :sm="12" :md="12" class="mb-4">
             <div class="statistic-card p-4 border border-gray-100 rounded-xl">
-              <el-statistic :value="currentMonthSummary.total" title="New transactions today">
+              <el-statistic
+                :value="currentMonthSummary.total"
+                title="New transactions today"
+              >
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
-                    Total Eggs in <b class="ml-2 text-md">{{ months[currentMonthIndex] }}</b>
+                    Total Eggs in
+                    <b class="ml-2 text-md">{{ months[currentMonthIndex] }}</b>
                   </div>
                 </template>
               </el-statistic>
@@ -56,11 +76,13 @@
         </el-row>
       </div>
       <div class="w-full card">
-        <span class="block mb-4 text-gray-700 font-medium">Egg Analysis Overall</span>
+        <span class="block mb-4 text-gray-700 font-medium"
+          >Egg Analysis Overall</span
+        >
         <el-row :gutter="16">
           <el-col :xs="20" :sm="12" :md="12" class="mb-4">
             <div class="statistic-card p-4 border border-gray-100 rounded-xl">
-             <el-statistic :value="totalCollected">
+              <el-statistic :value="totalCollected">
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
                     Total number of Eggs Collected
@@ -75,7 +97,6 @@
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
                     Total number of Eggs Damaged
-
                   </div>
                 </template>
               </el-statistic>
@@ -97,7 +118,7 @@
               <el-statistic :value="totalGood">
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
-                    Total Good Eggs 
+                    Total Good Eggs
                   </div>
                 </template>
               </el-statistic>
@@ -137,7 +158,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from "vue";
+import { ref, onMounted, computed, reactive, watch } from "vue";
 import { useStore } from "vuex";
 import Chart from "primevue/chart";
 import {
@@ -168,6 +189,31 @@ const store = useStore();
 const currentMonthIndex = new Date().getMonth();
 const eggsData = ref([]);
 
+const selectedYear = ref(new Date().getFullYear());
+
+const availableYears = computed(() => {
+  const years = new Set();
+  eggsData.value.forEach((item) => {
+    if (item.createdAt) {
+      years.add(item.createdAt.toDate().getFullYear());
+    }
+  });
+
+  return [...years].sort((a, b) => b - a);
+});
+
+watch(selectedYear, () => {
+  updateChart();
+});
+
+watch(availableYears, (years) => {
+  if (!years.length) return;
+
+  if (!years.includes(selectedYear.value)) {
+    selectedYear.value = years[0];
+  }
+});
+
 const chartData = ref();
 const chartOptions = ref();
 
@@ -177,8 +223,8 @@ const monthlyData = reactive(
     broken_eggs: 0,
     damaged_eggs: 0,
     total: 0,
-  }))
-);;
+  })),
+);
 
 const currentMonthSummary = computed(() => {
   return monthlyData[currentMonthIndex];
@@ -188,6 +234,16 @@ const chartColors = {
   revenue: "#42A5F5",
   expense: "#EF5350",
 };
+
+const filteredEggs = computed(() => {
+  return eggsData.value.filter((item) => {
+    if (!item.createdAt) return false;
+
+    return (
+      item.createdAt.toDate().getFullYear() === selectedYear.value
+    );
+  });
+});
 
 const tableRows = ref([]);
 
@@ -201,33 +257,33 @@ const buildTable = () => {
   }));
 };
 
-const totalCollected = computed(() => {
-  return eggsData.value.reduce(
+const totalCollected = computed(() =>
+  filteredEggs.value.reduce(
     (sum, item) => sum + Number(item.eggsCollected || 0),
     0
-  );
-});
+  )
+);
 
-const totalBroken = computed(() => {
-  return eggsData.value.reduce(
+const totalBroken = computed(() =>
+  filteredEggs.value.reduce(
     (sum, item) => sum + Number(item.eggsBroken || 0),
     0
-  );
-});
+  )
+);
 
-const totalDamaged = computed(() => {
-  return eggsData.value.reduce(
+const totalDamaged = computed(() =>
+  filteredEggs.value.reduce(
     (sum, item) => sum + Number(item.eggsDamaged || 0),
     0
-  );
-});
+  )
+);
 
-const totalGood = computed(() => {
-  return eggsData.value.reduce(
+const totalGood = computed(() =>
+  filteredEggs.value.reduce(
     (sum, item) => sum + Number(item.totalEggs || 0),
     0
-  );
-});
+  )
+);
 
 function resetMonthlyData() {
   for (let i = 0; i < 12; i++) {
@@ -244,7 +300,12 @@ function updateChart() {
   eggsData.value.forEach((item) => {
     if (!item.createdAt) return;
 
-    const month = item.createdAt.toDate().getMonth();
+    const date = item.createdAt.toDate();
+
+    // Ignore records from other years
+    if (date.getFullYear() !== selectedYear.value) return;
+
+    const month = date.getMonth();
 
     monthlyData[month].eggs_collected += Number(item.eggsCollected || 0);
     monthlyData[month].broken_eggs += Number(item.eggsBroken || 0);
@@ -312,7 +373,6 @@ function updateChart() {
 }
 
 const loadData = () => {
-  
   //Eggs
   const eggsQuery = query(
     collection(db, "eggs"),
@@ -395,21 +455,3 @@ onMounted(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 </style>
-
-<!-- const colors = {
-    revenue: "#10B981",
-    expenses: "#EF4444",
-    eggs: "#F59E0B",
-    birds: "#3B82F6",
-    mortality: "#8B5CF6"
-}
-
-or
-
-backgroundColor: [
-    "#4F46E5",
-    "#06B6D4",
-    "#10B981",
-    "#F59E0B",
-    "#EF4444"
-] -->
