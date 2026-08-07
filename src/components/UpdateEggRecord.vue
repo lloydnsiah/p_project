@@ -16,11 +16,12 @@
             <el-option label="Brown" value="Brown" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Eggs Collected" prop="eggsCollected">
+        <el-form-item label="Eggs Collected (Crates)" prop="cratesEntered">
           <el-input-number
-            v-model="form.eggsCollected"
-            placeholder="Number of Eggs Produced"
+            v-model="cratesEntered"
+            placeholder="Number of Crates"
             :min="0"
+            class="w-full!"
           />
         </el-form-item>
         <el-form-item label="Broken Eggs" prop="eggsBroken">
@@ -28,6 +29,7 @@
             v-model="form.eggsBroken"
             placeholder="Number of Eggs broken"
             :min="0"
+            class="w-full!"
           />
         </el-form-item>
         <el-form-item label="Damaged Eggs" prop="eggsDamaged">
@@ -35,6 +37,7 @@
             v-model="form.eggsDamaged"
             placeholder="Spoilt or Damaged Eggs"
             :min="0"
+            class="w-full!"
           />
         </el-form-item>
 
@@ -85,9 +88,16 @@ const props = defineProps({
   },
 });
 
+const EGGS_PER_CRATE = 30;
+const cratesEntered = ref(0);
+
+const eggsCollected = computed(() => {
+  return Number(cratesEntered.value || 0) * EGGS_PER_CRATE;
+});
+
 const totalEggs = computed(() => {
   return (
-    Number(form.eggsCollected) -
+    eggsCollected.value -
     Number(form.eggsBroken) -
     Number(form.eggsDamaged)
   );
@@ -97,10 +107,8 @@ const form = reactive({
   companyId: store.state.companyID,
   batchName: "",
   type: "",
-  eggsCollected: 0,
   eggsBroken: 0,
   eggsDamaged: 0,
-  totalEggs: 0,
   comment: "",
   date: new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -114,9 +122,13 @@ watch(
   (data) => {
     if (data) {
       Object.assign(form, data);
+      // Initialize crates entered from the existing total eggs collected count
+      if (data.eggsCollected) {
+        cratesEntered.value = data.eggsCollected / EGGS_PER_CRATE;
+      }
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const rules = {
@@ -126,9 +138,17 @@ const rules = {
    type: [
     { required: true, message: "Type is required", trigger: "blur" },
   ],
-  number: [
-    { required: false },
-    { type: "number", message: "Must be a number" },
+  cratesEntered: [
+    {
+      validator: (rule, value, callback) => {
+        if (cratesEntered.value <= 0) {
+          callback(new Error("Please enter at least 1 crate"));
+        } else {
+          callback();
+        }
+      },
+      trigger: "change",
+    },
   ],
   eggsCollected: [
     { required: true, message: "Enter eggs collected", trigger: "blur" },
@@ -156,6 +176,8 @@ const onSubmit = async () => {
       // ✅ Update User
       await updateDoc(doc(db, "eggs", props.data.id), {
         ...form,
+        eggsCollected: eggsCollected.value,
+        totalEggs: totalEggs.value,
         updatedAt: serverTimestamp(),
         updatedBy: store.state.username,
       });

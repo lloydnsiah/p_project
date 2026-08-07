@@ -15,11 +15,12 @@
             <el-option label="Brown" value="Brown" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Eggs Collected" prop="eggsCollected">
+        <el-form-item label="Eggs Collected (Crates)" prop="cratesEntered">
           <el-input-number
-            v-model="form.eggsCollected"
-            placeholder="Number of Eggs Produced"
+            v-model="cratesEntered"
+            placeholder="Number of Crates"
             :min="0"
+            class="w-full!"
           />
         </el-form-item>
         <el-form-item label="Broken Eggs" prop="eggsBroken">
@@ -27,6 +28,7 @@
             v-model="form.eggsBroken"
             placeholder="Number of Eggs broken"
             :min="0"
+            class="w-full!"
           />
         </el-form-item>
         <el-form-item label="Damaged Eggs" prop="eggsDamaged">
@@ -34,6 +36,7 @@
             v-model="form.eggsDamaged"
             placeholder="Spoilt or Damaged Eggs"
             :min="0"
+            class="w-full!"
           />
         </el-form-item>
 
@@ -47,8 +50,7 @@
 
         <div class="my-4 flex justify-between px-5">
           <span>Total</span>
-          <span class="text-xl font-bold" 
-          > {{ totalEggs }} eggs </span>
+          <span class="text-xl font-bold"> {{ totalEggs }} eggs </span>
         </div>
 
         <el-form-item>
@@ -79,12 +81,18 @@ import { db } from "../firebase";
 const store = useStore();
 const emit = defineEmits(["close"]);
 const formRef = ref();
+const cratesEntered = ref(null);
+const EGGS_PER_CRATE = 30;
+
+const eggsCollected = computed(() => {
+  return Number(cratesEntered.value || 0) * EGGS_PER_CRATE;
+});
 
 const totalEggs = computed(() => {
   return (
-    Number(form.eggsCollected) -
-    Number(form.eggsBroken) -
-    Number(form.eggsDamaged)
+    eggsCollected.value -
+    Number(form.eggsBroken || 0) -
+    Number(form.eggsDamaged || 0)
   );
 });
 
@@ -92,10 +100,8 @@ const form = reactive({
   companyId: store.state.companyID,
   batchName: "",
   type: "",
-  eggsCollected: 0,
-  eggsBroken: 0,
-  eggsDamaged: 0,
-  totalEggs: 0,
+  eggsBroken: null,
+  eggsDamaged: null,
   comment: "",
   date: new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -108,12 +114,18 @@ const rules = {
   batchName: [
     { required: true, message: "Batch Name is required", trigger: "blur" },
   ],
-  type: [
-    { required: true, message: "Type is required", trigger: "blur" },
-  ],
-  number: [
-    { required: false },
-    { type: "number", message: "Must be a number" },
+  type: [{ required: true, message: "Type is required", trigger: "blur" }],
+  cratesEntered: [
+    {
+      validator: (rule, value, callback) => {
+        if (cratesEntered.value <= 0) {
+          callback(new Error("Please enter at least 1 crate"));
+        } else {
+          callback();
+        }
+      },
+      trigger: "change",
+    },
   ],
   eggsCollected: [
     { required: true, message: "Enter eggs collected", trigger: "blur" },
@@ -142,6 +154,7 @@ const onSubmit = async () => {
       // Check duplicate supplier
       const q = query(
         collection(db, "eggs"),
+        where("companyId", "==", store.state.companyID),
         where("batchName", "==", form.batchName),
         where("date", "==", form.date),
       );
@@ -154,22 +167,17 @@ const onSubmit = async () => {
         return;
       }
 
-      const total =
-        Number(form.eggsCollected) -
-        Number(form.eggsBroken) -
-        Number(form.eggsDamaged);
-
-      if (total < 0) {
+       if (totalEggs.value < 0) {
         ElMessage.error(
-          "Broken and damaged eggs cannot exceed eggs collected.",
+          "Broken and damaged eggs cannot exceed total eggs collected."
         );
-        loading.close();
         return;
       }
 
       await addDoc(collection(db, "eggs"), {
         ...form,
-        totalEggs: total,
+        eggsCollected: eggsCollected.value,
+        totalEggs: totalEggs.value,
         createdAt: serverTimestamp(),
         createdBy: store.state.username,
       });
