@@ -77,6 +77,10 @@ export const ExpensesService = {
                     id: 19,
                     name: 'Security(cctv)'
                 },
+                {
+                    id: 20,
+                    name: 'Groceries'
+                },
             ]
         }
 

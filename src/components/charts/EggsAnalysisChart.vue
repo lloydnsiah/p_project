@@ -16,7 +16,7 @@
     <div class="mt-3 w-full grid sm:grid-cols-1 xl:grid-cols-2 gap-6">
       <div class="w-full card">
         <span class="block mb-4 text-gray-700 font-medium"
-          >Egg Analysis Monthly: <b>{{ months[currentMonthIndex] }}</b></span
+          >Egg Analysis Monthly : <b>{{ months[currentMonthIndex] }}</b></span
         >
         <el-row :gutter="16">
           <el-col :xs="24" :sm="12" :md="12" class="mb-4">
@@ -26,6 +26,7 @@
                   <div style="display: inline-flex; align-items: center">
                     Eggs Produced in :
                     <b class="ml-2 text-md">{{ months[currentMonthIndex] }}</b>
+                    
                   </div>
                 </template>
               </el-statistic>
@@ -85,7 +86,7 @@
               <el-statistic :value="totalCollected">
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
-                    Total number of Eggs Collected
+                    Total number of Eggs Collected (Grand Total)
                   </div>
                 </template>
               </el-statistic>

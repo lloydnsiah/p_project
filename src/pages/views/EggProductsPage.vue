@@ -14,32 +14,79 @@
         Add Record
       </button>
     </div>
-    <div class="flex-1 flex flex-col gap-1 mx-2">
-      <span class="text-gray-400 text-2xl ml-4 italic">Egg Records</span>
       <div v-if="!tableData.length" class="card">
+        <span class="text-gray-400 text-2xl ml-4 italic">Egg Records</span>
         <el-empty description="No data available" />
       </div>
       <div v-else class="card">
         <DataTable
+          v-model:expandedRows="expandedRows"
+          dataKey="id"
           :value="tableData"
-          paginator
+          :paginator="tableData?.length > 5"
           :rows="5"
+          size="small"
           :rowsPerPageOptions="[5, 10]"
           tableStyle="min-width: 50rem"
+          v-model:filters="filters"
+          :globalFilterFields="[
+            'batchName',
+            'type',
+            'size',
+            'totalEggs',
+            'date',
+          ]"
         >
-        <Column field="date" header="Created At" style="width: 10%"></Column>
+          <template #header>
+            <div class="flex justify-content-end">
+              <div class="flex items-center w-full justify-between">
+                <div class="flex flex-col gap-1">
+                  <h1 class="text-2xl text-gray-800">Egg Records</h1>
+                </div>
+                <div class="flex gap-4 items-center">
+                  <IconField iconPosition="left">
+                    <InputIcon>
+                      <i class="pi pi-search"></i>
+                    </InputIcon>
+                    <InputText
+                      v-model="filters['global'].value"
+                      placeholder="Keyword Search"
+                    />
+                  </IconField>
+                  <el-button @click="visible = true" v-if="tableData.length"
+                    >Show Data</el-button
+                  >
+                </div>
+              </div>
+            </div>
+          </template>
+          <template #empty> No Data found. </template>
+          <Column field="date" header="Created At" style="width: 10%"></Column>
           <Column
             field="batchName"
             header="Batch Name"
-            style="width: 15%"
+            style="width: 20%"
           ></Column>
-          <Column field="type" header="Type of Egg" style="width: 10%" class="font-bold capitalize"></Column>
-          <Column field="eggsCollected" header="Eggs Collected" style="width: 15%" class="text-green-500"></Column>
-          <Column field="eggsBroken" header="Broken Eggs" style="width: 10% " class="text-red-500"></Column>
-          <Column field="eggsDamaged" header="Damaged Eggs" style="width: 10%" class="text-blue-500"></Column>
-          <Column field="totalEggs" header="Total Eggs" style="width: 10%"></Column>
-          <Column field="comment" header="Comment" style="width: 20%"></Column>
-          
+          <Column
+            field="type"
+            header="Type of Egg"
+            style="width: 20%"
+           
+          ></Column>
+          <Column
+            field="size"
+            header="Size"
+            style="width: 10%"
+            
+          ></Column>
+
+          <Column
+            field="totalEggs"
+            header="Total Eggs"
+            style="width: 10%"
+          ></Column>
+          <Column field="comment" header="Comment" style="width: 30%"></Column>
+          <Column expander style="width: 5rem" />
           <Column header="Actions">
             <template #body="slotProps">
               <div class="flex flex-row gap-4">
@@ -68,18 +115,212 @@
               </div>
             </template>
           </Column>
+
+          <template #expansion="slotProps">
+            <div class="p-3">
+              <h2 class="font-bold mb-2">Details</h2>
+              <div class="w-full flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span>Eggs Collected:</span>
+                  <b> {{ slotProps.data.eggsCollected }} </b>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span>Broken Eggs:</span>
+                  <b> {{ slotProps.data.eggsBroken }} </b>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span>Damaged Eggs:</span>
+                  <b> {{ slotProps.data.eggsDamaged }} </b>
+                </div>
+              </div>
+            </div>
+          </template>
         </DataTable>
       </div>
     </div>
-  </div>
+ 
   <AddEggRecord v-if="modal_add" @close="modal_add = false" />
-  <UpdateEggRecord v-if="modal_update" @close="modal_update = false" :data="selectedData" />
-  <DeleteDialog v-if="modal_delete" @close="modal_delete = false" @delete="deleleData()" />
+  <UpdateEggRecord
+    v-if="modal_update"
+    @close="modal_update = false"
+    :data="selectedData"
+  />
+  <DeleteDialog
+    v-if="modal_delete"
+    @close="modal_delete = false"
+    @delete="deleleData()"
+  />
+
+  <Dialog
+    v-model:visible="visible"
+    maximizable
+    modal
+    header="Egg Analysis Overall"
+    :style="{ width: '50rem' }"
+    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+  >
+    <div class="w-full card">
+      <div
+        class="my-4 flex items-center justify-between rounded-lg bg-gray-50 px-5 py-4"
+      >
+        <span>All Eggs Data</span>
+      </div>
+      <el-row :gutter="16">
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalCollected">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of Eggs Collected
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalDamaged">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of Eggs Damaged
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalBroken">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of Broken Eggs
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalGood">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total Good Eggs
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+      </el-row>
+      <div
+        class="my-4 flex items-center justify-between rounded-lg bg-gray-50 px-5 py-4"
+      >
+        <span>White Eggs Data</span>
+      </div>
+      <el-row :gutter="16">
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalWhiteCollected">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of White Eggs Collected
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalWhiteDamaged">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of White Eggs Damaged
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalWhiteBroken">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of Broken White Eggs
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalWhiteGood">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total White Good Eggs
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+      </el-row>
+      <div
+        class="my-4 flex items-center justify-between rounded-lg bg-gray-50 px-5 py-4"
+      >
+        <span>Brown Eggs Data</span>
+      </div>
+
+      <el-row :gutter="16">
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalBrownCollected">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of Brown Eggs Collected
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalBrownDamaged">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of Brown Eggs Damaged
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalBrownBroken">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total number of Broken Brown Eggs
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+        <el-col :xs="18" :sm="12" :md="12" class="mb-1">
+          <div class="statistic-card p-4 border border-gray-100 rounded-xl">
+            <el-statistic :value="totalBrownGood">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  Total Good Brown Eggs
+                </div>
+              </template>
+            </el-statistic>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+  </Dialog>
 </template>
 
 <script setup>
 import { useRoute } from "vue-router";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import AddSupplier from "../../components/AddSupplier.vue";
 import { ElLoading, ElMessage } from "element-plus";
 import {
@@ -98,9 +339,11 @@ import AddEggRecord from "../../components/AddEggRecord.vue";
 import DeleteDialog from "../../components/DeleteDialog.vue";
 import UpdateEggRecord from "../../components/UpdateEggRecord.vue";
 
+const expandedRows = ref({});
 const modal_add = ref(false);
 const modal_delete = ref(false);
 const modal_update = ref(false);
+const visible = ref(false);
 const tableData = ref([]);
 const data = ref([]);
 const route = useRoute();
@@ -149,4 +392,80 @@ const deleleData = async () => {
 
   loadingInstance.close();
 };
+
+const totalCollected = computed(() =>
+  tableData.value.reduce(
+    (sum, item) => sum + Number(item.eggsCollected || 0),
+    0,
+  ),
+);
+
+const totalBroken = computed(() =>
+  tableData.value.reduce((sum, item) => sum + Number(item.eggsBroken || 0), 0),
+);
+
+const totalDamaged = computed(() =>
+  tableData.value.reduce((sum, item) => sum + Number(item.eggsDamaged || 0), 0),
+);
+
+const totalGood = computed(() =>
+  tableData.value.reduce((sum, item) => sum + Number(item.totalEggs || 0), 0),
+);
+
+const totalWhiteGood = computed(() =>
+  tableData.value.reduce((sum, item) => {
+    return item.type === "White" ? sum + Number(item.totalEggs || 0) : sum;
+  }, 0),
+);
+
+const totalWhiteCollected = computed(() =>
+  tableData.value.reduce((sum, item) => {
+    return item.type === "White" ? sum + Number(item.eggsCollected || 0) : sum;
+  }, 0),
+);
+
+const totalWhiteBroken = computed(() =>
+  tableData.value.reduce((sum, item) => {
+    return item.type === "White" ? sum + Number(item.eggsBroken || 0) : sum;
+  }, 0),
+);
+
+const totalWhiteDamaged = computed(() =>
+  tableData.value.reduce((sum, item) => {
+    return item.type === "White" ? sum + Number(item.eggsDamaged || 0) : sum;
+  }, 0),
+);
+const totalBrownGood = computed(() =>
+  tableData.value.reduce((sum, item) => {
+    return item.type === "Brown" ? sum + Number(item.totalEggs || 0) : sum;
+  }, 0),
+);
+
+const totalBrownCollected = computed(() =>
+  tableData.value.reduce((sum, item) => {
+    return item.type === "Brown" ? sum + Number(item.eggsCollected || 0) : sum;
+  }, 0),
+);
+
+const totalBrownBroken = computed(() =>
+  tableData.value.reduce((sum, item) => {
+    return item.type === "Brown" ? sum + Number(item.eggsBroken || 0) : sum;
+  }, 0),
+);
+
+const totalBrownDamaged = computed(() =>
+  tableData.value.reduce((sum, item) => {
+    return item.type === "Brown" ? sum + Number(item.eggsDamaged || 0) : sum;
+  }, 0),
+);
+
+const filters = ref({
+  global: { value: null },
+  batchName: { value: null },
+  type: { value: null },
+  size: { value: null },
+  totalEggs: { value: null },
+  date: { value: null },
+});
+
 </script>

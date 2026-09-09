@@ -15,18 +15,46 @@
       </button>
     </div>
     <div class="flex-1 flex flex-col gap-1 mx-2">
-      <span class="text-gray-400 text-2xl ml-4 italic">Suppliers List</span>
       <div v-if="!tableData.length" class="card">
+        <span class="text-gray-400 text-2xl ml-4 italic">Suppliers List</span>
         <el-empty description="No data available" />
       </div>
       <div v-else class="card mt-3">
         <DataTable
           :value="tableData"
-          paginator
+          :paginator="tableData?.length > 5"
           :rows="5"
+          size="small"
           :rowsPerPageOptions="[5, 10]"
           tableStyle="min-width: 50rem"
+          :globalFilterFields="[
+            'supplierName',
+            'contactName',
+            'number',
+            'products',
+          ]"
         >
+          <template #header>
+            <div class="flex justify-content-end">
+              <div class="flex items-center w-full justify-between">
+                <div class="flex flex-col gap-1">
+                  <h1 class="text-2xl text-gray-800">Suppliers List</h1>
+                </div>
+                <div class="flex gap-2">
+                  <IconField iconPosition="left">
+                    <InputIcon>
+                      <i class="pi pi-search"></i>
+                    </InputIcon>
+                    <InputText
+                      v-model="filters['global'].value"
+                      placeholder="Keyword Search"
+                    />
+                  </IconField>
+                </div>
+              </div>
+            </div>
+          </template>
+          <template #empty> No Data found. </template>
           <Column
             field="supplierName"
             header="Supplier Name"
@@ -42,31 +70,23 @@
             header="Phone Number"
             style="width: 15%"
           ></Column>
-          <Column
-            field="products"
-            header="Products"
-            style="width: 30%"
-          >
-        <template #body="slotProps">
-        <el-tag
-          v-for="(product, index) in slotProps.data.products" :key="index"
-          class="tag-item"
-          type="primary"
-          style="margin-right: 8px;"
-        >
-          {{ product }}
-        </el-tag>
-      </template>
-       
-        </Column>
-          <Column
-            field="date"
-            header="Created At"
-            style="width: 15%"
-          ></Column>
+          <Column field="products" header="Products" style="width: 30%">
+            <template #body="slotProps">
+              <el-tag
+                v-for="(product, index) in slotProps.data.products"
+                :key="index"
+                class="tag-item"
+                type="primary"
+                style="margin-right: 8px"
+              >
+                {{ product }}
+              </el-tag>
+            </template>
+          </Column>
+          <Column field="date" header="Created At" style="width: 15%"></Column>
 
           <Column header="Actions">
-           <template #body="slotProps">
+            <template #body="slotProps">
               <div class="flex flex-row gap-4">
                 <!-- <Button label="Edit" severity="success" variant="text" /> -->
                 <Button
@@ -98,8 +118,16 @@
     </div>
   </div>
   <AddSupplier v-if="modal_add" @close="modal_add = false" />
-  <UpdateSupplier v-if="modal_update" @close="modal_update = false" :data="selectedData"/>
-  <DeleteDialog v-if="modal_delete" @close="modal_delete = false" @delete="deleleData()" />
+  <UpdateSupplier
+    v-if="modal_update"
+    @close="modal_update = false"
+    :data="selectedData"
+  />
+  <DeleteDialog
+    v-if="modal_delete"
+    @close="modal_delete = false"
+    @delete="deleleData()"
+  />
 </template>
 
 <script setup>
@@ -173,4 +201,12 @@ const deleleData = async () => {
 
   loadingInstance.close();
 };
+
+const filters = ref({
+  global: { value: null },
+  supplierName: { value: null },
+  contactName: { value: null },
+  number: { value: null },
+  products: { value: null },
+});
 </script>

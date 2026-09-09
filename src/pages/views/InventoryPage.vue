@@ -16,18 +16,50 @@
       </button>
     </div>
     <div class="flex-1 flex flex-col gap-1 mx-2">
-      <span class="text-gray-400 text-2xl ml-4 italic">Inventory List</span>
+      
       <div v-if="!tableData.length" class="card">
+        <span class="text-gray-400 text-2xl ml-4 italic">Inventory List</span>
         <el-empty description="No data available" />
       </div>
       <div v-else class="card">
         <DataTable
           :value="tableData"
-          paginator
+          :paginator="tableData?.length > 5"
           :rows="5"
           :rowsPerPageOptions="[5, 10]"
           tableStyle="min-width: 50rem"
+          size="small"
+          v-model:filters="filters"
+          :globalFilterFields="[
+            'name',
+            'currency',
+            'price',
+            'feature',
+            'createdBy',
+          ]"
         >
+          <template #header>
+            <div class="flex justify-content-end">
+              <div class="flex items-center w-full justify-between">
+                <div class="flex flex-col gap-1">
+                  <h1 class="text-2xl text-gray-800">Inventory List</h1>
+                </div>
+                <div class="flex gap-2">
+                  <IconField iconPosition="left">
+                    <InputIcon>
+                      <i class="pi pi-search"></i>
+                    </InputIcon>
+                    <InputText
+                      v-model="filters['global'].value"
+                      placeholder="Keyword Search"
+                    />
+                  </IconField>
+                  
+                </div>
+              </div>
+            </div>
+          </template>
+          <template #empty> No Data found. </template>
           <Column field="name" header="Inventory Name" style="width: 20%"></Column>
           <Column
             field="currency"
@@ -39,7 +71,7 @@
             header="Purchase Price"
             style="width: 20%"
           ></Column>
-          <Column header="Inventory Type" style="width: 20%">
+          <Column header="Inventory Type" style="width: 14%">
             <template #body>
               <Tag
                 value="Active"
@@ -48,9 +80,14 @@
             </template>
           </Column>
           <Column
+            field="feature"
+            header="Feature"
+            style="width: 13%"
+          ></Column>
+          <Column
             field="createdBy"
             header="Created By"
-            style="width: 20%"
+            style="width: 13%"
           ></Column>
           <Column
             field="date"
@@ -166,4 +203,13 @@ const deleleData = async () => {
 
   loadingInstance.close();
 };
+
+const filters = ref({
+  global: { value: null },
+  name: { value: null },
+  currency: { value: null },
+  price: { value: null },
+  feature: { value: null },
+  createdBy: { value: null },
+});
 </script>

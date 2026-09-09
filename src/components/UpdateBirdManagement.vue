@@ -13,10 +13,17 @@
           </el-select>
         </el-form-item>
         <el-form-item label="Type" prop="type">
-          <el-select placeholder="New Stock or Dead Birds or Sold" v-model="form.type">
+          <el-select placeholder="Select Bird Type" v-model="form.type">
             <el-option label="Broilers" value="Broilers" />
             <el-option label="Layers" value="layers" />
             <el-option label="Cockerels" value="cockerels" />
+             <el-option label="Other" value="Other" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Bird Color" prop="color">
+          <el-select placeholder="Select Bird Color" v-model="form.color">
+            <el-option label="White Birds" value="White Birds" />
+            <el-option label="Brown Birds" value="Brown Birds" />
           </el-select>
         </el-form-item>
         <el-form-item label="Batch Name" prop="batchName">
@@ -85,6 +92,7 @@ const form = reactive({
   companyId: store.state.companyID,
   category: "",
   type: "",
+  color: "",
   batchName: "",
   numberofbirds: "",
   comment: "",

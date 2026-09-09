@@ -34,6 +34,8 @@ declare module 'vue' {
     EggsAnalysisChart: typeof import('./src/components/charts/EggsAnalysisChart.vue')['default']
     ExpenseView: typeof import('./src/components/ExpenseView.vue')['default']
     HeroSwiper: typeof import('./src/components/HeroSwiper.vue')['default']
+    IconField: typeof import('primevue/iconfield')['default']
+    InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
     Loader: typeof import('./src/components/Loader.vue')['default']
     LoginComponent: typeof import('./src/components/LoginComponent.vue')['default']

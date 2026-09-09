@@ -7,18 +7,22 @@ export const RevenueService = {
                 },
                 {
                     id: 2,
-                    name: 'Bird Sales'
+                    name: 'Bird Sales (White Birds)'
                 },
                 {
                     id: 3,
-                    name: 'Manure Sales'
+                    name: 'Bird Sales (Brown Birds)'
                 },
                 {
                     id: 4,
-                    name: 'Feed Sales'
+                    name: 'Manure Sales'
                 },
                 {
                     id: 5,
+                    name: 'Feed Sales'
+                },
+                {
+                    id: 6,
                     name: 'Other Income'
                 }
             ]

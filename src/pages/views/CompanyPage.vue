@@ -24,6 +24,7 @@
         <DataTable
           :value="tableData"
           :loading="false"
+          size="small"
           stripedRows
           tableStyle="min-width: 50rem"
         >

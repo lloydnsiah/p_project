@@ -12,11 +12,18 @@
             <el-option label="Dead" value="Dead" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Type" prop="type">
-          <el-select placeholder="New Stock or Dead Birds or Sold" v-model="form.type">
+        <el-form-item label="Bird Type" prop="type">
+          <el-select placeholder="Select Bird Type" v-model="form.type">
             <el-option label="Broilers" value="Broilers" />
             <el-option label="Layers" value="Layers" />
             <el-option label="Cockerels" value="Cockerels" />
+            <el-option label="Other" value="Other" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Bird Color" prop="color">
+          <el-select placeholder="Select Bird Color" v-model="form.color">
+            <el-option label="White Birds" value="White Birds" />
+            <el-option label="Brown Birds" value="Brown Birds" />
           </el-select>
         </el-form-item>
         <el-form-item label="Batch Name" prop="batchName">
@@ -80,6 +87,7 @@ const form = reactive({
   companyId: store.state.companyID,
   category: "",
   type: "",
+  color: "",
   batchName: "",
   numberofbirds: null,
   causeofDeath: "",
@@ -113,7 +121,7 @@ const onSubmit = async () => {
 
     const loading = ElLoading.service({
       lock: true,
-      text: "Creating Employee Details...",
+      text: "Creating Birds Record Details...",
       background: "rgba(0,0,0,.5)",
     });
 
@@ -138,12 +146,12 @@ const onSubmit = async () => {
         createdBy: store.state.username,
       });
 
-      ElMessage.success("Employee created successfully");
+      ElMessage.success("Birds record created successfully");
 
       emit("close");
     } catch (error) {
       console.error(error);
-      ElMessage.error("Failed to create employees");
+      ElMessage.error("Failed to create birds record");
     } finally {
       loading.close();
     }

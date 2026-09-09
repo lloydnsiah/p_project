@@ -7,7 +7,6 @@
           <el-input
             v-model="form.batchName"
             placeholder="Add a name for the batch"
-            disabled
           />
         </el-form-item>
         <el-form-item label="Type" prop="type">
@@ -16,10 +15,64 @@
             <el-option label="Brown" value="Brown" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Eggs Collected (Crates)" prop="cratesEntered">
-          <el-input-number
+        <el-form-item label="Size" prop="size">
+          <el-select placeholder="Select the size of Egg" v-model="form.size">
+            <el-option label="Unsorted" value="Unsorted" />
+            <el-option label="Pullet" value="Pullet" />
+            <el-option label="Big" value="Big" />
+            <el-option label="Small" value="Small" />
+          </el-select>
+        </el-form-item>
+        <div class="flex items-center justify-center">
+          <el-switch
+            v-model="value"
+            class="mb-2"
+            size="small"
+            active-text="Record Eggs By Crates"
+            inactive-text="Record Eggs By Number"
+            @change="handleSwitchChange"
+          />
+        </div>
+        <el-form-item
+          label="Eggs Collected (Crates)"
+          prop="cratesEntered"
+          v-if="value"
+        >
+          <!-- <el-input-number
             v-model="cratesEntered"
             placeholder="Number of Crates"
+            :min="0"
+            class="w-full!"
+          /> -->
+          <div class="flex items-center gap-2 w-full">
+            <div class="flex-1">
+              <el-input-number
+                v-model="cratesEntered"
+                placeholder="Crates"
+                :min="0"
+                class="w-full!"
+              />
+              <span class="text-xs text-gray-400">Crates (x30)</span>
+            </div>
+
+            <span class="font-bold text-gray-400 mb-8">+</span>
+
+            <div class="flex-1">
+              <el-input-number
+                v-model="extraPiecesEntered"
+                placeholder="Loose Eggs"
+                :min="0"
+                :max="29"
+                class="w-full!"
+              />
+              <span class="text-xs text-gray-400">Loose Pieces</span>
+            </div>
+          </div>
+        </el-form-item>
+        <el-form-item label="Eggs Collected" v-else>
+          <el-input-number
+            v-model="piecesEntered"
+            placeholder="Number of Eggs Collected"
             :min="0"
             class="w-full!"
           />
@@ -48,10 +101,17 @@
             placeholder="Add comments..."
           />
         </el-form-item>
+        <div
+          class="my-4 flex items-center justify-between rounded-lg bg-gray-50 px-5 py-4"
+        >
+          <div>
+            <p class="text-sm text-gray-500">Net Eggs</p>
+            <p class="text-xs text-gray-400">Collected - Broken - Damaged</p>
+          </div>
 
-        <div class="my-4 flex justify-between px-5">
-          <span>Total</span>
-          <span class="text-xl font-bold"> {{ totalEggs }} eggs </span>
+          <span class="text-2xl font-bold">
+            {{ totalEggs }}
+          </span>
         </div>
 
         <el-form-item>
@@ -80,7 +140,7 @@ import { db } from "../firebase";
 const store = useStore();
 const emit = defineEmits(["close"]);
 const formRef = ref();
-
+const value = ref(false);
 const props = defineProps({
   data: {
     type: Object,
@@ -89,17 +149,25 @@ const props = defineProps({
 });
 
 const EGGS_PER_CRATE = 30;
-const cratesEntered = ref(0);
+const cratesEntered = ref(null);
+const piecesEntered = ref(null);
+const extraPiecesEntered = ref(null);
 
 const eggsCollected = computed(() => {
-  return Number(cratesEntered.value || 0) * EGGS_PER_CRATE;
+  if (value.value) {
+   const cratesTotal = Number(cratesEntered.value || 0) * EGGS_PER_CRATE;
+    const extraTotal = Number(extraPiecesEntered.value || 0);
+    return cratesTotal + extraTotal;
+  }
+
+  return Number(piecesEntered.value || 0);
 });
 
 const totalEggs = computed(() => {
   return (
     eggsCollected.value -
-    Number(form.eggsBroken) -
-    Number(form.eggsDamaged)
+    Number(form.eggsBroken || 0) -
+    Number(form.eggsDamaged || 0)
   );
 });
 
@@ -107,6 +175,7 @@ const form = reactive({
   companyId: store.state.companyID,
   batchName: "",
   type: "",
+  size: "",
   eggsBroken: 0,
   eggsDamaged: 0,
   comment: "",
@@ -124,20 +193,30 @@ watch(
       Object.assign(form, data);
       // Initialize crates entered from the existing total eggs collected count
       if (data.eggsCollected) {
-        cratesEntered.value = data.eggsCollected / EGGS_PER_CRATE;
+        cratesEntered.value = Math.floor(data.eggsCollected / EGGS_PER_CRATE);
+        extraPiecesEntered.value = data.eggsCollected % EGGS_PER_CRATE;
+        piecesEntered.value = data.eggsCollected; // Also set piecesEntered for consistency
       }
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
+
+const handleSwitchChange = () => {
+  if (value.value) {
+    piecesEntered.value = null;
+  } else {
+    cratesEntered.value = null;
+    extraPiecesEntered.value = null;
+  }
+  formRef.value?.clearValidate();
+};
 
 const rules = {
   batchName: [
     { required: true, message: "Batch Name is required", trigger: "blur" },
   ],
-   type: [
-    { required: true, message: "Type is required", trigger: "blur" },
-  ],
+  type: [{ required: true, message: "Type is required", trigger: "blur" }],
   cratesEntered: [
     {
       validator: (rule, value, callback) => {

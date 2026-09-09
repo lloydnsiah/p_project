@@ -18,7 +18,36 @@
     <el-form-item label="Role" prop="role">
       <el-input v-model="form.role"/>
     </el-form-item>
-    
+    <el-form-item label="Start Date" prop="startDate">
+          <el-date-picker
+          v-model="form.startDate"
+          type="date"
+          placeholder="Pick a date"
+          style="width: 100%"
+        />
+        </el-form-item>
+
+         <el-form-item label="End Date" prop="endDate">
+          <el-date-picker
+          v-model="form.endDate"
+          type="date"
+          placeholder="Pick a date"
+          style="width: 100%"
+        />
+        </el-form-item>
+        <el-form-item label="Card Type" prop="cardType">
+          <el-select placeholder="Select card type" v-model="form.cardType">
+            <el-option label="Ghana Card" value="Ghana Card" /> 
+            <el-option label="NHIS" value="NHIS" /> 
+            <el-option label="Driver License" value="Driver License" />
+            <el-option label="SSNIT Card" value="SSNIT Card" />
+            <el-option label="Others" value="Others" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="Card Number" prop="cardNumber">
+          <el-input v-model="form.cardNumber" />
+        </el-form-item>
     
     <el-form-item style="margin-top: 40px; margin-left: 30px; align-content: center; align-items: center; width: 100%; display: flex;">
       <el-button @click="emit('close')">Cancel</el-button>
@@ -61,6 +90,10 @@ const form = reactive({
   emergencyContact: "",
   emergencyContactNumber: "",
   role: "",
+  startDate: "",
+  endDate: "",
+  cardType: "",
+  cardNumber: "",
   date: new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
@@ -72,10 +105,18 @@ watch(
   () => props.data,
   (data) => {
     if (data) {
-      Object.assign(form, data);
+      Object.assign(form, {
+        ...data,
+        startDate: data.startDate?.toDate
+          ? data.startDate.toDate()
+          : data.startDate,
+        endDate: data.endDate?.toDate
+          ? data.endDate.toDate()
+          : data.endDate,
+      });
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const rules = {
@@ -91,7 +132,10 @@ const rules = {
 
   role: [
     { required: true, message: "Please select a role", trigger: "change" },
-  ]
+  ],
+  startDate: [
+    { required: true, message: "Start date is required", trigger: "change" },
+  ],
 };
 
 
@@ -103,7 +147,7 @@ const onSubmit = async () => {
 
     const loadingInstance = ElLoading.service({
       lock: true,
-      text: "Updating Supplier's Details...",
+      text: "Updating Employee's Details...",
     });
 
     try {

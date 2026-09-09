@@ -15,18 +15,45 @@
       </button>
     </div>
     <div class="flex-1 flex flex-col gap-1 mx-2">
-      <span class="text-gray-400 text-2xl ml-4 italic">Expenses List</span>
-      <div v-if="!tableData.length" class="card">
-        <el-empty description="No data available" />
-      </div>
-      <div v-else class="card">
+      <div class="card">
         <DataTable
           :value="tableData"
-          paginator
+          :paginator="tableData?.length > 5"
           :rows="5"
+          size="small"
           :rowsPerPageOptions="[5, 10]"
           tableStyle="min-width: 50rem"
+          v-model:filters="filters"
+          :globalFilterFields="[
+            'batchName',
+            'total',
+            'companyName',
+            'data.paymentStatus',
+            'date',
+          ]"
         >
+          <template #header>
+            <div class="flex justify-content-end">
+              <div class="flex items-center w-full justify-between">
+                <div class="flex flex-col gap-1">
+                  <h1 class="text-2xl text-gray-800">Expenses List</h1>
+                </div>
+                <div class="flex gap-2">
+                  <IconField iconPosition="left">
+                    <InputIcon>
+                      <i class="pi pi-search"></i>
+                    </InputIcon>
+                    <InputText
+                      v-model="filters['global'].value"
+                      placeholder="Keyword Search"
+                    />
+                  </IconField>
+                  
+                </div>
+              </div>
+            </div>
+          </template>
+          <template #empty> No Data found. </template>
           <Column field="date" header="Date" style="width: 10%"></Column>
           <Column
             field="batchName"
@@ -174,4 +201,13 @@ const deleleData = async () => {
 
   loadingInstance.close();
 };
+
+const filters = ref({
+  global: { value: null },
+  batchName: { value: null },
+  total: { value: null },
+  companyName: { value: null },
+ 'data.paymentStatus': { value: null },
+  date: { value: null },
+});
 </script>
