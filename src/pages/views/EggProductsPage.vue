@@ -14,131 +14,130 @@
         Add Record
       </button>
     </div>
-      <div v-if="!tableData.length" class="card">
-        <span class="text-gray-400 text-2xl ml-4 italic">Egg Records</span>
-        <el-empty description="No data available" />
-      </div>
-      <div v-else class="card">
-        <DataTable
-          v-model:expandedRows="expandedRows"
-          dataKey="id"
-          :value="tableData"
-          :paginator="tableData?.length > 5"
-          :rows="5"
-          size="small"
-          :rowsPerPageOptions="[5, 10]"
-          tableStyle="min-width: 50rem"
-          v-model:filters="filters"
-          :globalFilterFields="[
-            'batchName',
-            'type',
-            'size',
-            'totalEggs',
-            'date',
-          ]"
-        >
-          <template #header>
-            <div class="flex justify-content-end">
-              <div class="flex items-center w-full justify-between">
-                <div class="flex flex-col gap-1">
-                  <h1 class="text-2xl text-gray-800">Egg Records</h1>
-                </div>
-                <div class="flex gap-4 items-center">
-                  <IconField iconPosition="left">
-                    <InputIcon>
-                      <i class="pi pi-search"></i>
-                    </InputIcon>
-                    <InputText
-                      v-model="filters['global'].value"
-                      placeholder="Keyword Search"
-                    />
-                  </IconField>
-                  <el-button @click="visible = true" v-if="tableData.length"
-                    >Show Data</el-button
-                  >
-                </div>
-              </div>
-            </div>
-          </template>
-          <template #empty> No Data found. </template>
-          <Column field="date" header="Created At" style="width: 10%"></Column>
-          <Column
-            field="batchName"
-            header="Batch Name"
-            style="width: 20%"
-          ></Column>
-          <Column
-            field="type"
-            header="Type of Egg"
-            style="width: 20%"
-           
-          ></Column>
-          <Column
-            field="size"
-            header="Size"
-            style="width: 10%"
-            
-          ></Column>
-
-          <Column
-            field="totalEggs"
-            header="Total Eggs"
-            style="width: 10%"
-          ></Column>
-          <Column field="comment" header="Comment" style="width: 30%"></Column>
-          <Column expander style="width: 5rem" />
-          <Column header="Actions">
-            <template #body="slotProps">
-              <div class="flex flex-row gap-4">
-                <!-- <Button label="Edit" severity="success" variant="text" /> -->
-                <Button
-                  @click="updateData(slotProps.data)"
-                  icon="pi pi-pencil"
-                  severity="info"
-                  variant="text"
-                  raised
-                  rounded
-                  aria-label="Search"
-                  size="small"
-                />
-                <Button
-                  @click="confirmDelete(slotProps.data)"
-                  icon="pi pi-times"
-                  severity="danger"
-                  variant="text"
-                  raised
-                  rounded
-                  aria-label="Cancel"
-                  size="small"
-                />
-                <!-- <Button label="Delete" severity="danger" variant="text" /> -->
-              </div>
-            </template>
-          </Column>
-
-          <template #expansion="slotProps">
-            <div class="p-3">
-              <h2 class="font-bold mb-2">Details</h2>
-              <div class="w-full flex flex-col gap-2">
-                <div class="flex items-center justify-between">
-                  <span>Eggs Collected:</span>
-                  <b> {{ slotProps.data.eggsCollected }} </b>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span>Broken Eggs:</span>
-                  <b> {{ slotProps.data.eggsBroken }} </b>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span>Damaged Eggs:</span>
-                  <b> {{ slotProps.data.eggsDamaged }} </b>
-                </div>
-              </div>
-            </div>
-          </template>
-        </DataTable>
-      </div>
+    <div v-if="!tableData.length" class="card">
+      <span class="text-gray-400 text-2xl ml-4 italic">Egg Records</span>
+      <el-empty description="No data available" />
     </div>
- 
+    <div v-else class="card">
+      <DataTable
+        v-model:expandedRows="expandedRows"
+        dataKey="id"
+        :value="tableData"
+        :paginator="tableData?.length > 5"
+        :rows="5"
+        size="small"
+        :rowsPerPageOptions="[5, 10]"
+        tableStyle="min-width: 50rem"
+        v-model:filters="filters"
+        :globalFilterFields="['batchName', 'type', 'size', 'totalEggs', 'date']"
+      >
+        <template #header>
+          <div class="flex justify-content-end">
+            <div class="flex items-center w-full justify-between">
+              <div class="flex flex-col gap-1">
+                <h1 class="text-2xl text-gray-800">Egg Records</h1>
+              </div>
+              <div class="flex gap-4 items-center">
+                <IconField iconPosition="left">
+                  <InputIcon>
+                    <i class="pi pi-search"></i>
+                  </InputIcon>
+                  <InputText
+                    v-model="filters['global'].value"
+                    placeholder="Keyword Search"
+                  />
+                </IconField>
+                <el-button @click="visible = true" v-if="tableData.length"
+                  >Show Data</el-button
+                >
+              </div>
+            </div>
+          </div>
+        </template>
+        <template #empty> No Data found. </template>
+        <Column field="date" header="Created At" style="width: 10%"></Column>
+        <Column
+          field="batchName"
+          header="Batch Name"
+          style="width: 20%"
+        ></Column>
+        <Column field="type" header="Type of Egg" style="width: 10%"></Column>
+        <Column field="size" header="Size" style="width: 15%"></Column>
+        <Column
+          field="totalEggs"
+          header="Total Eggs"
+          style="width: 15%"
+        ></Column>
+        <Column field="comment" header="Comment" style="width: 30%"></Column>
+        <Column expander style="width: 5rem" />
+        <Column header="Actions">
+          <template #body="slotProps">
+            <div class="flex flex-row gap-4">
+              <!-- <Button label="Edit" severity="success" variant="text" /> -->
+              <Button
+                @click="updateData(slotProps.data)"
+                icon="pi pi-pencil"
+                severity="info"
+                variant="text"
+                raised
+                rounded
+                aria-label="Search"
+                size="small"
+              />
+              <Button
+                @click="confirmDelete(slotProps.data)"
+                icon="pi pi-times"
+                severity="danger"
+                variant="text"
+                raised
+                rounded
+                aria-label="Cancel"
+                size="small"
+              />
+              <!-- <Button label="Delete" severity="danger" variant="text" /> -->
+            </div>
+          </template>
+        </Column>
+
+        <template #expansion="slotProps">
+          <div class="p-3">
+            <h2 class="font-bold mb-2">Details</h2>
+            <div class="w-full flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span>Eggs Collected:</span>
+                <span><b> {{ slotProps.data.eggsCollected }} </b> eggs</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Broken Eggs:</span>
+                <span><b> {{ slotProps.data.eggsBroken }} </b> eggs</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Damaged Eggs:</span>
+                <span><b> {{ slotProps.data.eggsDamaged }}</b> eggs</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Recording method:</span>
+                <span class="capitalize"> {{ slotProps.data.recordingMethod }} </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Crates Entered:</span>
+                <span> {{ slotProps.data.cratesEntered }} crates </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Pieces Entered:</span>
+                <span> {{ slotProps.data.piecesEntered }} pieces </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Created By:</span>
+                <span> {{ slotProps.data.createdBy }} </span>
+              </div>
+            </div>
+          </div>
+        </template>
+      </DataTable>
+    </div>
+  </div>
+
   <AddEggRecord v-if="modal_add" @close="modal_add = false" />
   <UpdateEggRecord
     v-if="modal_update"
@@ -316,6 +315,7 @@
       </el-row>
     </div>
   </Dialog>
+
 </template>
 
 <script setup>
@@ -467,5 +467,4 @@ const filters = ref({
   totalEggs: { value: null },
   date: { value: null },
 });
-
 </script>
